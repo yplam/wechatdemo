@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * hook_wechat_message
+ */
+function wechatdemo_wechat_message($weObj){
+  $type = $weObj->getRev()->getRevType();
+  switch($type){
+    case Wechat::MSGTYPE_TEXT:
+      _wechatdemo_ontext($weObj);
+      break;
+    case Wechat::MSGTYPE_EVENT:
+      _wechatdemo_onevent($weObj);
+      break;	  
+  }
+}
+
+/**
+ * demo auto reply to text
+ */
+function _wechatdemo_ontext($weObj){
+  $text = $weObj->getRevContent();
+  if($text === 'ping'){
+    $weObj->text('pong');
+  }
+}
+
+/**
+ * override menu event
+ */
+function _wechatdemo_onevent($weObj){
+  $event = $weObj->getRevEvent();
+  if(!$event){
+    return false;
+  }
+  if($event['event']=='CLICK' && $event['key'] == 'KEY_ABOUT'){
+    $weObj->text('you click about');
+  }
+}
+
+/**
+ * hook_menu
+ */
+function wechatdemo_menu(){
+  $items['wechat/auth/base'] = array(
+    'title' => 'Wechat Auth',
+    'page callback' => 'wechatdemo_auth_base',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wechat/auth/userinfo'] = array(
+    'title' => 'Wechat Auth',
+    'page callback' => 'wechatdemo_auth_userinfo',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wechat/auth/error'] = array(
+    'title' => 'Wechat Auth',
+    'page callback' => 'wechatdemo_auth_error',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+function wechatdemo_auth_error(){
+  return 'on error';
+}
+
+function wechatdemo_auth_base(){
+  global $user;
+  if(user_is_logged_in()){
+    return 'you have login '.$user->name;
+  }
+  wechat_snsapi_base(url('wechat/auth/base', array('absolute'=>true)),url('wechat/auth/error', array('absolute'=>true)));
+  return 'good';
+}
+
+function wechatdemo_auth_userinfo(){
+  global $user;
+  if(user_is_logged_in()){
+    return 'you have login '.$user->name;
+  }
+  wechat_snsapi_userinfo(url('wechat/auth/userinfo', array('absolute'=>true)),url('wechat/auth/error', array('absolute'=>true)));
+  return 'good';
+}

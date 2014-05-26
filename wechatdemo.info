@@ -1,0 +1,6 @@
+name = Wechat Demo
+description = Demo App for Wechat.
+core = 7.x
+
+dependencies[] = wechat
+
