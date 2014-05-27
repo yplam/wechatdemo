@@ -34,7 +34,20 @@ function _wechatdemo_onevent($weObj){
     return false;
   }
   if($event['event']=='CLICK' && $event['key'] == 'KEY_ABOUT'){
-    $weObj->text('you click about');
+    $out = "这是一个测试Demo\n";
+	$wechatid = $weObj->getRevFrom();
+	if($wechatid ){
+	  $out .= "您的微信openid为 $wechatid \n";
+	  $wechatuser=wechat_token_get_user($wechatid);
+	  if($wechatuser){
+	    $out .= "您的用户ID为 {$wechatuser->uid} \n";
+	  }
+	  else{
+	    $out .= "您还没有与我们网站绑定，请点击右下登录按钮进行测试\n";
+	  }
+	
+	}
+    $weObj->text($out);
   }
 }
 
